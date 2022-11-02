@@ -85,48 +85,53 @@ class RecipeViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
 
-    def create_obj(self, request, recipe):
+    def get_serializer_class(self):
+        if self.request.method == 'GET':
+            return serializers.RecipeSerializer
+        return serializers.RecipePostSerializer
+
+    def create_del_obj(self, request, pk, database):
         """Вспомогательный метод создания объекта избранного/списка покупок."""
-        data = request.data.copy()
-        data.update({'recipe': recipe.id})
-        serializer = self.get_serializer(data=data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(
-            data=serializers.PartialRecipeSerializer(recipe).data,
-            status=status.HTTP_201_CREATED)
-
-    def del_obj(self, request, recipe, model):
-        """Вспомогательный метод удаления объекта избранного/списка покупок."""
-        obj = model.objects.filter(user=request.user, recipe=recipe)
-        if not obj.exists():
-            return Response(
-                {'errors': 'Рецепт отсутствует в избранном.'},
-                status=status.HTTP_400_BAD_REQUEST)
-        obj.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        recipe = get_object_or_404(Recipe, id=pk)
+        if request.method == 'POST':
+            if not database.objects.filter(
+                    user=self.request.user,
+                    recipe=recipe).exists():
+                database.objects.create(
+                    user=self.request.user,
+                    recipe=recipe)
+                serializer = serializers.PartialRecipeSerializer(recipe)
+                return Response(serializer.data,
+                                status=status.HTTP_201_CREATED)
+            text = 'errors: Объект уже в списке.'
+            return Response(text, status=status.HTTP_400_BAD_REQUEST)
+        if request.method == 'DELETE':
+            if database.objects.filter(
+                    user=self.request.user,
+                    recipe=recipe).exists():
+                database.objects.filter(
+                    user=self.request.user,
+                    recipe=recipe).delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
+            text = 'errors: Объект не в списке.'
+            return Response(text, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            text = 'errors: Метод обращения недопустим.'
+            return Response(text, status=status.HTTP_400_BAD_REQUEST)
 
     @action(
         methods=['post', 'delete'], detail=True,
-        permission_classes=(permissions.IsAuthenticated, ),
-        serializer_class=serializers.FavoriteSerializer)
-    def favorite(self, request, *args, **kwargs):
+        permission_classes=(permissions.IsAuthenticated, ))
+    def favorite(self, request, pk=None):
         """Метод эндпоинта добавления/удаления рецепта из списка избранного."""
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
-        if request.method == 'POST':
-            return self.create_obj(request, recipe)
-        return self.del_obj(request, recipe, Favorite)
+        return self.create_del_obj(request, pk, Favorite)
 
     @action(
         methods=['post', 'delete'], detail=True,
-        permission_classes=(permissions.IsAuthenticated, ),
-        serializer_class=serializers.ShoppingCartSerializer)
-    def shopping_cart(self, request, *args, **kwargs):
+        permission_classes=(permissions.IsAuthenticated, ),)
+    def shopping_cart(self, request, pk):
         """Метод эндпоинта добавления/удаления рецепта из списка покупок."""
-        recipe = get_object_or_404(Recipe, id=kwargs['pk'])
-        if request.method == 'POST':
-            return self.create_obj(request, recipe)
-        return self.del_obj(request, recipe, ShoppingCart)
+        return self.create_del_obj(request, pk, ShoppingCart)
 
     @action(
         methods=['get'], detail=False,

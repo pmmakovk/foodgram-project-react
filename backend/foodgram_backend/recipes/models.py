@@ -73,10 +73,10 @@ class Recipe(models.Model):
         return self.name
 
     def get_ingredients(self):
-        return '\n'.join([ing.name for ing in self.ingredients.all()])
+        return Ingredient.objects.values_list('name')
 
     def get_tags(self):
-        return '\n'.join([tag.name for tag in self.tags.all()])
+        return Tag.objects.values_list('name')
 
     get_ingredients.short_description = 'Ингредиенты'
     get_tags.short_description = 'Теги'
@@ -87,13 +87,13 @@ class RecipeIngredient(models.Model):
     recipe = models.ForeignKey(
         Recipe,
         related_name='recipeingredients',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True
     )
     ingredient = models.ForeignKey(
         Ingredient,
         related_name='recipeingredients',
-        on_delete=models.SET_NULL,
+        on_delete=models.CASCADE,
         null=True
     )
     amount = models.PositiveSmallIntegerField(
