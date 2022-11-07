@@ -1,22 +1,30 @@
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfgen import canvas
+from django.db.models import Sum
+from django.http import HttpResponse
 
-INGREDIENT = '{num}. {name} - {amount} {unit}'
+from recipes.models import RecipeIngredient
 
 
-def pfd_table(response, cart):
-    """Метод формирования PDF таблицы."""
-    pdfmetrics.registerFont(TTFont('times', 'timescyr.ttf'))
-    page = canvas.Canvas(response)
-    page.setFont('times', size=20)
-    page.drawString(200, 800, 'Список ингредиентов')
-    page.setFont('times', size=14)
-    height = 750
-    for num, (name, data) in enumerate(cart.items(), 1):
-        page.drawString(75, height, INGREDIENT.format(
-            num=num, name=name, amount=data['amount'], unit=data['unit']))
-        height -= 25
-    page.showPage()
-    page.save()
+def get_ingredients_for_shopping(user):
+    ingredients = RecipeIngredient.objects.filter(
+        recipe__shoppingcarts__user=user
+    ).values(
+        'ingredient__name',
+        'ingredient__measurement_unit',
+    ).annotate(
+        value=Sum('amount')
+    ).order_by('ingredient__name')
+    response = HttpResponse(
+        content_type='text/plain',
+        charset='utf-8',
+    )
+    response['Content-Disposition'] = (
+        'attachment; filename="shopping_list.txt"'
+    )
+    response.write('Список продуктов к покупке:\n')
+    for ingredient in ingredients:
+        response.write(
+            f'- {ingredient["ingredient__name"]} '
+            f'- {ingredient["value"]} '
+            f'{ingredient["ingredient__measurement_unit"]}\n'
+        )
     return response

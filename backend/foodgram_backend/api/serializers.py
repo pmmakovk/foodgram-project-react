@@ -251,10 +251,9 @@ class RecipePostSerializer(serializers.ModelSerializer):
         return ingredients
 
     def validate_tags(self, tags):
-        chek_id = [tag['id'] for tag in tags]
-        if len(chek_id) != len(set(chek_id)):
+        if not tags:
             raise serializers.ValidationError(
-                'Данный тег уже есть в рецепте!')
+                'Необходимо выбрать теги!')
         return tags
 
     def add_ingredients_and_tags(self, tags, ingredients, recipe):
@@ -266,11 +265,11 @@ class RecipePostSerializer(serializers.ModelSerializer):
             recipe.tags.add(tag)
             recipe.save()
         for ingredient in ingredients:
-            RecipeIngredient.objects.create(
+            RecipeIngredient.objects.bulk_create([RecipeIngredient(
                 ingredient_id=ingredient.get('id'),
                 amount=ingredient.get('amount'),
                 recipe=recipe
-            )
+            )])
         return recipe
 
     def create(self, validated_data):

@@ -1,6 +1,5 @@
 from django.shortcuts import get_object_or_404
 from djoser.views import UserViewSet
-from django.http import HttpResponse
 from rest_framework import permissions, status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -9,7 +8,7 @@ from . import serializers, filters, shopping_list
 from .permissions import IsAuthorOrReadOnly
 from users.models import User
 from recipes.models import (
-    Tag, Ingredient,  Recipe, Favorite, ShoppingCart, RecipeIngredient)
+    Tag, Ingredient,  Recipe, Favorite, ShoppingCart)
 from api.pagination import PageLimitPagination
 
 
@@ -137,17 +136,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
         methods=['get'], detail=False,
         permission_classes=(permissions.IsAuthenticated, ))
     def download_shopping_cart(self, request):
-        """Метод эндпоинта скачивания списка покупок PDF файлом."""
-        ingredients = RecipeIngredient.objects.filter(
-            recipe__shoppingcarts__user=request.user).values_list(
-            'ingredient__name', 'amount', 'ingredient__measurement_unit')
-        cart = {}
-        for name, amount, unit in ingredients:
-            if name not in cart:
-                cart[name] = {'amount': amount, 'unit': unit}
-            else:
-                cart[name]['amount'] += amount
-        response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = (
-            'attachment; filename="shopping_list.pdf"')
-        return shopping_list.pfd_table(response, cart)
+        """Метод эндпоинта скачивания списка покупок."""
+        user = request.user
+        return shopping_list.get_ingredients_for_shopping(user)
