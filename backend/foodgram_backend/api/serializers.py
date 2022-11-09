@@ -264,11 +264,11 @@ class RecipePostSerializer(serializers.ModelSerializer):
         for tag in tags:
             recipe.tags.add(tag)
             recipe.save()
-            RecipeIngredient.objects.bulk_create([RecipeIngredient(
-                ingredient_id=ingredient.get('id'),
-                amount=ingredient.get('amount'),
-                recipe=recipe
-            ) for ingredient in ingredients])
+        RecipeIngredient.objects.bulk_create([RecipeIngredient(
+            ingredient_id=ingredient.get('id'),
+            amount=ingredient.get('amount'),
+            recipe=recipe
+        ) for ingredient in ingredients])
         return recipe
 
     def create(self, validated_data):
