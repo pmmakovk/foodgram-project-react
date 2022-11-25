@@ -8,7 +8,7 @@ from . import serializers, filters, shopping_list
 from .permissions import IsAuthorOrReadOnly
 from users.models import User
 from recipes.models import (
-    Tag, Ingredient,  Recipe, Favorite, ShoppingCart)
+    Tag, Ingredient, Recipe, Favorite, ShoppingCart)
 from api.pagination import PageLimitPagination
 
 

@@ -9,11 +9,11 @@ class UserAdmin(UserAdmin):
     """Класс админки для модели пользователя."""
     model = models.User
     list_display = (
-       'username',
-       'email',
-       'first_name',
-       'last_name',
-       'is_staff',
+        'username',
+        'email',
+        'first_name',
+        'last_name',
+        'is_staff',
     )
     list_filter = ('email', 'username',)
     search_fields = ('username', 'email', 'first_name', 'last_name', )
