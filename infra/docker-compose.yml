@@ -9,7 +9,7 @@ services:
       - ./.env
 
   backend:
-    image: pmpracticum/backend:v1.3
+    image: pmpracticum/backend:latest
     restart: always
     volumes:
       - static_value:/app/static/
@@ -19,7 +19,7 @@ services:
     env_file:
       - ./.env
   frontend:
-    image: pmpracticum/frontend:v1
+    image: pmpracticum/frontend:latest
     volumes:
       - ../frontend/:/app/result_build/
     depends_on:
