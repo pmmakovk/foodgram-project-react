@@ -76,6 +76,6 @@ docker-compose exec backend python manage csv_manager
 docker-compose exec backend python manage tags_manager
 ```
 ## Примеры запросов к API и ответов
-### Доступно на http://localhost/api/docs/
+### Доступно на http://localhost/api/docs/redoc.html
 
 ## Разработчик - [Маковкин Павел](https://github.com/pmmakovk) ##
