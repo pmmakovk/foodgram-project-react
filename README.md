@@ -1,3 +1,4 @@
+![workflow](https://github.com/pmmakovk/foodgram-project-react/actions/workflows/foodgram_workflow.yml/badge.svg)
 # foodgram
 
 Проект Foodgram.\
@@ -5,6 +6,8 @@
 добавлять чужие рецепты в избранное и подписываться на публикации других авторов.
 Сервис «Список покупок» позволит пользователям создавать список продуктов,
 которые нужно купить для приготовления выбранных блюд.
+
+Проект доступен по адресу http://158.160.8.13, доступ к админке admin@admin.ru;Admin1234!
 
 
 ## Технологии
@@ -27,7 +30,7 @@
 git clone git@github.com:pmmakovk/foodgram-project-react.git
 ```
 ```
-cd foodgram-project
+cd foodgram-project-react
 ```
 ### Cоздать и активировать виртуальное окружение:
 ```
@@ -41,18 +44,36 @@ python -m venv venv
 python -m pip install --upgrade pip
 ```
 ```
-pip install -r backend/foodgram/requirements.txt
+pip install -r backend/foodgram_backend/requirements.txt
+```
+### Наполнить .env файл
+```
+cd infra
+
+DB_ENGINE=<...> # указываем, что работаем с postgresql
+DB_NAME=<...> # имя базы данных
+POSTGRES_USER=<...> # логин для подключения к базе данных
+POSTGRES_PASSWORD=<...> # пароль для подключения к БД (установите свой)
+DB_HOST=<...> # название сервиса (контейнера)
+DB_PORT=<...> # порт для подключения к БД
+SECRET_KEY=<...>	# ключ для settings.py
 ```
 ### Перейти в папку с docker-compose.yml и собрать контейнеры:
 ```
 cd infra
 docker-compose up --build
 ```
-
+### Создать миграции, провести их, собрать статику, создать суперюпользователя
+```
+docker-compose exec backend python manage.py makemigrations
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py collectstatic --no-input
+docker-compose exec backend python manage.py createsuperuser
+```
 ### Наполнить БД ингредиентами из CSV файла (при необходимости)
 ```
-python manage csv_manager
-python manage tags_manager
+docker-compose exec backend python manage csv_manager
+docker-compose exec backend python manage tags_manager
 ```
 ## Примеры запросов к API и ответов
 ### Доступно на http://localhost/api/docs/
