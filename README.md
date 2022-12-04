@@ -72,8 +72,8 @@ docker-compose exec backend python manage.py createsuperuser
 ```
 ### Наполнить БД ингредиентами из CSV файла (при необходимости)
 ```
-docker-compose exec backend python manage csv_manager
-docker-compose exec backend python manage tags_manager
+docker-compose exec backend python manage.py csv_manager
+docker-compose exec backend python manage.py tags_manager
 ```
 ## Примеры запросов к API и ответов
 ### Доступно на http://localhost/api/docs/
