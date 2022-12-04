@@ -244,6 +244,11 @@ class RecipePostSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def validate_ingredients(self, ingredients):
+        for ingredient in ingredients:
+            if ingredient['amount'] < 1:
+                raise serializers.ValidationError(
+                    'Количество не может быть меньше 1!'
+                )
         chek_id = [ingredient['id'] for ingredient in ingredients]
         if len(chek_id) != len(set(chek_id)):
             raise serializers.ValidationError(
