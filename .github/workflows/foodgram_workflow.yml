@@ -37,14 +37,14 @@ jobs:
       uses: docker/build-push-action@v2 
       with:
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/backend:v3
         context: backend/foodgram_backend
         file: backend/foodgram_backend/Dockerfile
     - name: Push to DockerHub (frontend)
       uses: docker/build-push-action@v2
       with:
         push: true
-        tags: ${{ secrets.DOCKER_USERNAME }}/frontend:latest
+        tags: ${{ secrets.DOCKER_USERNAME }}/frontend:v3
         context: frontend/
         file: frontend/Dockerfile
   
@@ -63,8 +63,8 @@ jobs:
         script: |
           sudo docker compose stop
           sudo docker compose rm backend
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:latest
-          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:latest
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_backend:v3
+          sudo docker pull ${{ secrets.DOCKER_USERNAME }}/foodgram_frontend:v3
           touch .env
           echo SECRET_KEY="${{ secrets.SECRET_KEY }}" >> .env
           echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
